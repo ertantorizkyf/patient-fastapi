@@ -13,5 +13,6 @@ class Doctor(Base):
                         server_default=text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable=True,
                         onupdate=text("CURRENT_TIMESTAMP"))
-    
-    speciality = relationship('Speciality', back_populates='doctors')
+
+    speciality = relationship('Speciality', foreign_keys=[speciality_id],
+                              primaryjoin='Speciality.id == Doctor.speciality_id')
