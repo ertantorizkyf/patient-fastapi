@@ -1,6 +1,5 @@
 import logging
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
 from sqlalchemy import or_, exc
 
 from app.database import SessionLocal, get_db

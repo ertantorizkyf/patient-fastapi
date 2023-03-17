@@ -1,13 +1,11 @@
 import logging
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
 from sqlalchemy import or_, exc
 
 from app.database import SessionLocal, get_db
 from app.models.doctor import Doctor as DoctorModel
 from app.models.speciality import Speciality as SpecialityModel
 from app.schemas.speciality import Speciality as SpecialitySchema
-
 
 router = APIRouter(
     prefix='/specialities',
@@ -68,8 +66,8 @@ def create(speciality: SpecialitySchema, db: SessionLocal = Depends(get_db)):
 @router.delete('/{speciality_id}')
 def delete(speciality_id: int, db: SessionLocal = Depends(get_db)):
     # CHECK IF DATA EXIST
-    existing_patient = db.query(SpecialityModel).get(speciality_id)
-    if existing_patient is None:
+    existing_data = db.query(SpecialityModel).get(speciality_id)
+    if existing_data is None:
         response = {
             'message': 'Speciality does not exist',
             'data': None
