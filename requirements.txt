@@ -1,3 +1,4 @@
+alembic==1.10.2
 anyio==3.6.2
 autopep8==2.0.2
 click==8.1.3
@@ -7,7 +8,9 @@ greenlet==2.0.2
 h11==0.14.0
 httptools==0.5.0
 idna==3.4
+Mako==1.2.4
 mariadb==1.1.6
+MarkupSafe==2.1.2
 packaging==23.0
 pycodestyle==2.10.0
 pydantic==1.10.6
