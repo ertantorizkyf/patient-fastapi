@@ -35,6 +35,10 @@ def upgrade():
                   server_default=sa.text("CURRENT_TIMESTAMP")),
         sa.Column('updated_at', sa.TIMESTAMP, nullable=True,
                   onupdate=sa.text("CURRENT_TIMESTAMP")),
+        sa.PrimaryKeyConstraint('id'),
+        mariadb_collate='utf8mb4_general_ci',
+        mariadb_default_charset='utf8mb4',
+        mariadb_engine='InnoDB'
     )
 
 
