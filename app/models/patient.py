@@ -14,7 +14,7 @@ class Patient(Base):
     dob = Column(Date, nullable=False)
     emergency_contact_name = Column(String, nullable=False)
     emergency_contact_phone = Column(String, nullable=False)
-    emergenct_contact_relationship = Column(String, nullable=False)
+    emergency_contact_relationship = Column(String, nullable=False)
     created_at = Column(TIMESTAMP, nullable=False,
                         server_default=text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable=True,

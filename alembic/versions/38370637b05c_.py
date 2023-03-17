@@ -29,7 +29,7 @@ def upgrade():
         sa.Column('dob', sa.Date, nullable=False),
         sa.Column('emergency_contact_name', sa.String(255), nullable=False),
         sa.Column('emergency_contact_phone', sa.String(255), nullable=False),
-        sa.Column('emergenct_contact_relationship',
+        sa.Column('emergency_contact_relationship',
                   sa.String(255), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP, nullable=False,
                   server_default=sa.text("CURRENT_TIMESTAMP")),

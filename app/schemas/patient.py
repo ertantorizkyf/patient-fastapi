@@ -12,7 +12,7 @@ class Patient(BaseModel):
     dob: str
     emergency_contact_name: str
     emergency_contact_phone: str
-    emergenct_contact_relationship: str
+    emergency_contact_relationship: str
     created_at: str | None = None
     updated_at: str | None = None
 
