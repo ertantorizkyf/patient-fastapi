@@ -3,8 +3,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import or_, exc
 
 from app.database import SessionLocal, get_db
+from app.helpers import general as GeneralHelper
 from app.models.patient import Patient as PatientModel
 from app.schemas.patient import Patient as PatientSchema
+from app.validators import general as GeneralValidator
 
 
 router = APIRouter(
@@ -18,7 +20,14 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
     result = db.query(PatientModel).filter(
         or_(
             PatientModel.name.like('%' + search + '%'),
-            PatientModel.address.like('%' + search + '%')
+            PatientModel.phone.like('%' + search + '%'),
+            PatientModel.email.like('%' + search + '%'),
+            PatientModel.pob.like('%' + search + '%'),
+            PatientModel.address.like('%' + search + '%'),
+            PatientModel.emergency_contact_name.like('%' + search + '%'),
+            PatientModel.emergency_contact_phone.like('%' + search + '%'),
+            PatientModel.emergency_contact_relationship.like(
+                '%' + search + '%')
         )
     )
     if (with_pagination):
@@ -45,6 +54,27 @@ def get_detail(patient_id: int, db: SessionLocal = Depends(get_db)):
 
 @router.post('/')
 def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
+    patient.sex = patient.sex.upper()
+    if not GeneralValidator.is_sex_valid(patient.sex):
+        response = {
+            'message': 'Please enter valid sex (M/F)',
+            'data': None
+        }
+        return response
+    patient.phone = GeneralHelper.phone_formatter(patient.phone)
+    if not GeneralValidator.is_phone_valid(patient.phone):
+        response = {
+            'message': 'Please enter valid phone number',
+            'data': None
+        }
+        return response
+    if not GeneralValidator.is_email_valid(patient.email):
+        response = {
+            'message': 'Please enter valid email',
+            'data': None
+        }
+        return response
+    
     new_patient = PatientModel(**patient.dict())
     db.add(new_patient)
     try:
