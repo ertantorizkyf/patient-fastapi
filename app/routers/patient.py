@@ -8,11 +8,6 @@ from app.models.patient import Patient as PatientModel
 from app.schemas.patient import Patient as PatientSchema
 
 
-class Patient(BaseModel):
-    name: str = Field(None, title="patient name", max_length=25)
-    address: str
-
-
 router = APIRouter(
     prefix='/patients',
     tags=['Patients']
@@ -74,12 +69,12 @@ def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
 
 
 @router.put('/{patient_id}')
-def update(patient_id: int, patient: Patient, db: SessionLocal = Depends(get_db)):
+def update(patient_id: int, patient: PatientSchema, db: SessionLocal = Depends(get_db)):
     # CHECK IF DATA EXIST
     existing_patient = db.query(PatientModel).get(patient_id)
     if existing_patient is None:
         response = {
-            'message': 'Patient does not found',
+            'message': 'Patient does not exist',
             'data': None
         }
         return response
@@ -114,7 +109,7 @@ def delete(patient_id: int, db: SessionLocal = Depends(get_db)):
     existing_patient = db.query(PatientModel).get(patient_id)
     if existing_patient is None:
         response = {
-            'message': 'Patient does not found',
+            'message': 'Patient does not exist',
             'data': None
         }
         return response
