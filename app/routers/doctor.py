@@ -8,6 +8,7 @@ from app.models.doctor import Doctor as DoctorModel
 from app.models.speciality import Speciality as SpecialityModel
 from app.schemas.doctor import Doctor as DoctorSchema
 
+
 router = APIRouter(
     prefix='/doctors',
     tags=['Doctors']
@@ -31,7 +32,8 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
 
 @router.get('/{doctor_id}')
 def get_detail(doctor_id: int, db: SessionLocal = Depends(get_db)):
-    result = db.query(DoctorModel).options(joinedload(DoctorModel.speciality)).get(doctor_id)
+    result = db.query(DoctorModel).options(
+        joinedload(DoctorModel.speciality)).get(doctor_id)
 
     response = {
         'message': 'Doctor detail fetched' if result is not None else 'Doctor detail not found',
