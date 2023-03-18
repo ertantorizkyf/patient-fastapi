@@ -16,3 +16,5 @@ class Doctor(Base):
 
     speciality = relationship('Speciality', foreign_keys=[speciality_id],
                               primaryjoin='Speciality.id == Doctor.speciality_id')
+    time_slots = relationship('DoctorTimeSlot', backref='doctors',
+                          primaryjoin='foreign(Doctor.id) == DoctorTimeSlot.doctor_id')
