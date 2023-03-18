@@ -1,6 +1,7 @@
 from app.validators import general as GeneralValidator
 
-def validate_payload(patient): 
+
+def validate_payload(patient):
     if not GeneralValidator.is_sex_valid(patient.sex):
         response = {
             'message': 'Please enter valid sex (M/F)',
