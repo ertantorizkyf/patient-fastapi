@@ -1,3 +1,37 @@
 # Patient CRUD with FastAPI and SQLAlchemy
 
+## Configuring and Running API
+
+**_coming soon_**
+
 ## Current Feature
+
+1. Patient
+   a. Get all patient data
+   b. Get patient data by id
+   c. Create new patient data
+   d. Update patient data
+   e. Delete patient data
+   f. Get specific patient consultation data
+2. Doctor
+   a. Get all doctor data
+   b. Get doctor data by id
+   c. Create new doctor data
+   d. Update doctor data
+   e. Delete doctor data
+   f. Get specific doctor time slot data
+   g. Create specific doctor time slot data
+   h. Toggle specific doctor time slot active status
+   i. Get specific doctor consultation data
+3. Consultation
+   a. Get all consultation data
+   b. Get consultation data by id
+   c. Create consultation data
+   d. Write consultation diagnosis and note
+   e. Delete consultation data
+4. Speciality (Medical speciality to be referenced in doctor data)
+   a. Get speciality data
+   b. Get speciality data by id
+   c. Create new speciality data
+   d. Update speciality data
+   e. Delete speciality data
