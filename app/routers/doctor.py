@@ -58,6 +58,16 @@ def create(doctor: DoctorSchema, db: SessionLocal = Depends(get_db)):
         }
         return response
 
+    # CHECK IF LICENSE NO IS ANOTHER DOCTOR'S LICENSE NO
+    doctor_license_no = db.query(DoctorModel).filter(
+        DoctorModel.license_no == doctor.license_no).first()
+    if doctor_license_no is not None:
+        response = {
+            'message': f'{doctor.license_no} is {doctor_license_no.name}\'s license no',
+            'data': None
+        }
+        return response
+
     # CREATE DATA
     new_doctor = DoctorModel(**doctor.dict())
     db.add(new_doctor)
@@ -97,6 +107,16 @@ def update(doctor_id: int, doctor: DoctorSchema, db: SessionLocal = Depends(get_
     if existing_doctor is None:
         response = {
             'message': 'Doctor does not exist',
+            'data': None
+        }
+        return response
+
+    # CHECK IF LICENSE NO IS ANOTHER DOCTOR'S LICENSE NO
+    doctor_license_no = db.query(DoctorModel).filter(and_(
+        DoctorModel.license_no == doctor.license_no, DoctorModel.id != doctor_id)).first()
+    if doctor_license_no is not None:
+        response = {
+            'message': f'{doctor.license_no} is {doctor_license_no.name}\'s license no',
             'data': None
         }
         return response
@@ -250,7 +270,7 @@ def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_d
             'data': None
         }
         return response
-    
+
     # CHECK IF SLOT EXIST
     existing_slot = db.query(DoctorTimeSlotModel).get(slot_id)
     if existing_slot is None:
@@ -259,7 +279,7 @@ def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_d
             'data': None
         }
         return response
-    
+
     # CHECK IF OVERLAPPING SLOT IF TOGGLE TO ACTIVE
     if not existing_slot.is_active:
         slot_count = db.query(DoctorTimeSlotModel).filter(
@@ -285,9 +305,10 @@ def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_d
                 'data': None
             }
             return response
-        
+
     # UPDATE DATA
-    time_slot = DoctorTimeSlotSchema(is_active = 0 if existing_slot.is_active else 1)
+    time_slot = DoctorTimeSlotSchema(
+        is_active=0 if existing_slot.is_active else 1)
     update_data = time_slot.dict(exclude_unset=True)
     db.query(DoctorTimeSlotModel).filter(DoctorTimeSlotModel.id == slot_id).update(update_data,
                                                                                    synchronize_session=False)
