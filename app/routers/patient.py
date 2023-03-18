@@ -6,7 +6,7 @@ from app.database import SessionLocal, get_db
 from app.helpers import general as GeneralHelper
 from app.models.patient import Patient as PatientModel
 from app.schemas.patient import Patient as PatientSchema
-from app.validators import patient as patientValidator
+from app.validators import patient as PatientValidator
 
 
 router = APIRouter(
@@ -60,7 +60,7 @@ def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
     patient.emergency_contact_phone = GeneralHelper.phone_formatter(patient.emergency_contact_phone)
 
     # VALIDATE PAYLOAD
-    validation_response = patientValidator.validate_payload(patient)
+    validation_response = PatientValidator.validate_payload(patient)
     if validation_response is not None:
         return validation_response
     
