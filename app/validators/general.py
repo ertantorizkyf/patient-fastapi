@@ -24,6 +24,23 @@ def is_iso_format_date_valid(date):
         return False
 
 
+def is_date_lte_today(date):
+    try:
+        is_lte_today = datetime.date.fromisoformat(
+            date).isoformat() <= datetime.datetime.now().isoformat()
+        return True if is_lte_today else False
+    except ValueError:
+        return False
+
+
+def does_date_match_day_name(date, ref_day):
+    try:
+        formatted_day = datetime.date.fromisoformat(date).strftime('%A')
+        return True if formatted_day == ref_day else False
+    except ValueError:
+        return False
+
+
 def is_day_name_valid(day):
     days = [
         'Sunday',
