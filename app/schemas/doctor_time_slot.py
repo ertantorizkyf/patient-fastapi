@@ -7,6 +7,7 @@ class DoctorTimeSlot(BaseModel):
     day: str
     start_time: str
     end_time: str
+    is_active: int | None = None
     created_at: str | None = None
     updated_at: str | None = None
 

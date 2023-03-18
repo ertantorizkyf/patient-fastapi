@@ -9,8 +9,8 @@ class Consultation(Base):
     doctor_id = Column(Integer, nullable=False)
     patient_id = Column(Integer, nullable=False)
     time_slot_id = Column(Integer, nullable=False)
-    diagnosis = Column(String, nullable=False)
-    note  = Column(Text, nullable=False)
+    diagnosis = Column(String, nullable=True)
+    note  = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP, nullable=False,
                         server_default=text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable=True,
