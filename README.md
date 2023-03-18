@@ -2,7 +2,10 @@
 
 ## Configuring and Running API
 
-**_coming soon_**
+1. Create virtual environment (Windows: `python -m venv venv`)
+2. Activate virtual environment (Windows Command Prompt: `venv\Scripts\activate.bat`)
+3. Install all modules from requirements file (`pip install -r requirements.txt`)
+4. Run `uvicorn app.main:app --reload` to start server on port 8000
 
 ## Current Feature
 
