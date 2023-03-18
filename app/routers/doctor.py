@@ -37,8 +37,8 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
 
 @router.get('/{doctor_id}')
 def get_detail(doctor_id: int, db: SessionLocal = Depends(get_db)):
-    result = db.query(DoctorModel).options(joinedload(
-        DoctorModel.speciality), joinedload(DoctorModel.time_slots)).get(doctor_id)
+    result = db.query(DoctorModel).options(
+        joinedload(DoctorModel.speciality)).get(doctor_id)
 
     response = {
         'message': 'Doctor detail fetched' if result is not None else 'Doctor detail not found',
@@ -206,12 +206,13 @@ def insert_time_slot(doctor_id: int, time_slot: DoctorTimeSlotSchema, db: Sessio
                     time_slot.end_time > DoctorTimeSlotModel.start_time,
                     time_slot.end_time <= DoctorTimeSlotModel.end_time
                 )
-            )
+            ),
+            DoctorTimeSlotModel.is_active == 1
         )
     ).count()
     if slot_count > 0:
         response = {
-            'message': 'Current request overlaps with existing time slots',
+            'message': 'Current request overlaps with active time slots',
             'data': None
         }
         return response
@@ -239,8 +240,8 @@ def insert_time_slot(doctor_id: int, time_slot: DoctorTimeSlotSchema, db: Sessio
     return response
 
 
-@router.delete('/{doctor_id}/time-slots/{slot_id}')
-def insert_time_slot(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_db)):
+@router.put('/{doctor_id}/time-slots/{slot_id}/toggle')
+def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_db)):
     # CHECK IF DOCTOR EXIST
     existing_doctor = db.query(DoctorModel).get(doctor_id)
     if existing_doctor is None:
@@ -249,7 +250,7 @@ def insert_time_slot(doctor_id: int, slot_id: int, db: SessionLocal = Depends(ge
             'data': None
         }
         return response
-
+    
     # CHECK IF SLOT EXIST
     existing_slot = db.query(DoctorTimeSlotModel).get(slot_id)
     if existing_slot is None:
@@ -258,13 +259,41 @@ def insert_time_slot(doctor_id: int, slot_id: int, db: SessionLocal = Depends(ge
             'data': None
         }
         return response
-
-    # DELETE DATA
-    delete_query = db.query(DoctorTimeSlotModel).filter(
-        DoctorTimeSlotModel.id == slot_id)
+    
+    # CHECK IF OVERLAPPING SLOT IF TOGGLE TO ACTIVE
+    if not existing_slot.is_active:
+        slot_count = db.query(DoctorTimeSlotModel).filter(
+            and_(
+                DoctorTimeSlotModel.doctor_id == doctor_id,
+                DoctorTimeSlotModel.day == existing_slot.day,
+                or_(
+                    and_(
+                        existing_slot.start_time >= DoctorTimeSlotModel.start_time,
+                        existing_slot.start_time < DoctorTimeSlotModel.end_time
+                    ),
+                    and_(
+                        existing_slot.end_time > DoctorTimeSlotModel.start_time,
+                        existing_slot.end_time <= DoctorTimeSlotModel.end_time
+                    )
+                ),
+                DoctorTimeSlotModel.is_active == 1
+            )
+        ).count()
+        if slot_count > 0:
+            response = {
+                'message': 'Current request overlaps with active time slots',
+                'data': None
+            }
+            return response
+        
+    # UPDATE DATA
+    time_slot = DoctorTimeSlotSchema(is_active = 0 if existing_slot.is_active else 1)
+    update_data = time_slot.dict(exclude_unset=True)
+    db.query(DoctorTimeSlotModel).filter(DoctorTimeSlotModel.id == slot_id).update(update_data,
+                                                                                   synchronize_session=False)
     try:
-        delete_query.delete(synchronize_session=False)
         db.commit()
+        db.refresh(existing_slot)
     except exc.SQLAlchemyError as e:
         error = str(e.orig)
         logging.error(error)
@@ -276,7 +305,7 @@ def insert_time_slot(doctor_id: int, slot_id: int, db: SessionLocal = Depends(ge
         return response
 
     response = {
-        'message': 'Doctor time slot deleted successfully',
-        'data': None
+        'message': 'Doctor time slot status toggled successfully',
+        'data': existing_slot
     }
     return response
