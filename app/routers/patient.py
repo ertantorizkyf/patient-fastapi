@@ -6,7 +6,7 @@ from app.database import SessionLocal, get_db
 from app.helpers import general as GeneralHelper
 from app.models.patient import Patient as PatientModel
 from app.schemas.patient import Patient as PatientSchema
-from app.validators import general as GeneralValidator
+from app.validators import patient as patientValidator
 
 
 router = APIRouter(
@@ -54,27 +54,17 @@ def get_detail(patient_id: int, db: SessionLocal = Depends(get_db)):
 
 @router.post('/')
 def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
+    # FORMAT DATA
     patient.sex = patient.sex.upper()
-    if not GeneralValidator.is_sex_valid(patient.sex):
-        response = {
-            'message': 'Please enter valid sex (M/F)',
-            'data': None
-        }
-        return response
     patient.phone = GeneralHelper.phone_formatter(patient.phone)
-    if not GeneralValidator.is_phone_valid(patient.phone):
-        response = {
-            'message': 'Please enter valid phone number',
-            'data': None
-        }
-        return response
-    if not GeneralValidator.is_email_valid(patient.email):
-        response = {
-            'message': 'Please enter valid email',
-            'data': None
-        }
-        return response
+    patient.emergency_contact_phone = GeneralHelper.phone_formatter(patient.emergency_contact_phone)
+
+    # VALIDATE PAYLOAD
+    validation_response = patientValidator.validate_payload(patient)
+    if validation_response is not None:
+        return validation_response
     
+    # CREATE DATA
     new_patient = PatientModel(**patient.dict())
     db.add(new_patient)
     try:
@@ -99,6 +89,16 @@ def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
 
 @router.put('/{patient_id}')
 def update(patient_id: int, patient: PatientSchema, db: SessionLocal = Depends(get_db)):
+    # FORMAT DATA
+    patient.sex = patient.sex.upper()
+    patient.phone = GeneralHelper.phone_formatter(patient.phone)
+    patient.emergency_contact_phone = GeneralHelper.phone_formatter(patient.emergency_contact_phone)
+
+    # VALIDATE PAYLOAD
+    validation_response = patientValidator.validate_payload(patient)
+    if validation_response is not None:
+        return validation_response
+    
     # CHECK IF DATA EXIST
     existing_patient = db.query(PatientModel).get(patient_id)
     if existing_patient is None:
