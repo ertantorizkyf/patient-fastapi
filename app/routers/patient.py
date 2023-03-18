@@ -95,7 +95,7 @@ def update(patient_id: int, patient: PatientSchema, db: SessionLocal = Depends(g
     patient.emergency_contact_phone = GeneralHelper.phone_formatter(patient.emergency_contact_phone)
 
     # VALIDATE PAYLOAD
-    validation_response = patientValidator.validate_payload(patient)
+    validation_response = PatientValidator.validate_payload(patient)
     if validation_response is not None:
         return validation_response
     
