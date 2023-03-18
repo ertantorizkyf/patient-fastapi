@@ -1,9 +1,12 @@
 import logging
 from fastapi import APIRouter, Depends
 from sqlalchemy import or_, exc
+from sqlalchemy.orm import joinedload
 
 from app.database import SessionLocal, get_db
 from app.helpers import general as GeneralHelper
+from app.models.consultation import Consultation as ConsultationModel
+from app.models.doctor import Doctor as DoctorModel
 from app.models.patient import Patient as PatientModel
 from app.schemas.patient import Patient as PatientSchema
 from app.validators import patient as PatientValidator
@@ -13,6 +16,8 @@ router = APIRouter(
     prefix='/patients',
     tags=['Patients']
 )
+
+# PATIENT
 
 
 @router.get('/')
@@ -57,13 +62,14 @@ def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
     # FORMAT DATA
     patient.sex = patient.sex.upper()
     patient.phone = GeneralHelper.phone_formatter(patient.phone)
-    patient.emergency_contact_phone = GeneralHelper.phone_formatter(patient.emergency_contact_phone)
+    patient.emergency_contact_phone = GeneralHelper.phone_formatter(
+        patient.emergency_contact_phone)
 
     # VALIDATE PAYLOAD
     validation_response = PatientValidator.validate_payload(patient)
     if validation_response is not None:
         return validation_response
-    
+
     # CREATE DATA
     new_patient = PatientModel(**patient.dict())
     db.add(new_patient)
@@ -92,13 +98,14 @@ def update(patient_id: int, patient: PatientSchema, db: SessionLocal = Depends(g
     # FORMAT DATA
     patient.sex = patient.sex.upper()
     patient.phone = GeneralHelper.phone_formatter(patient.phone)
-    patient.emergency_contact_phone = GeneralHelper.phone_formatter(patient.emergency_contact_phone)
+    patient.emergency_contact_phone = GeneralHelper.phone_formatter(
+        patient.emergency_contact_phone)
 
     # VALIDATE PAYLOAD
     validation_response = PatientValidator.validate_payload(patient)
     if validation_response is not None:
         return validation_response
-    
+
     # CHECK IF DATA EXIST
     existing_patient = db.query(PatientModel).get(patient_id)
     if existing_patient is None:
@@ -161,5 +168,26 @@ def delete(patient_id: int, db: SessionLocal = Depends(get_db)):
     response = {
         'message': 'Patient data deleted successfully',
         'data': None
+    }
+    return response
+
+
+# PATIENT CONSULTATION
+@router.get('/{patient_id}/consultations')
+def get_consultations(patient_id: int, db: SessionLocal = Depends(get_db)):
+    existing_patient = db.query(PatientModel).get(patient_id)
+    if existing_patient is None:
+        response = {
+            'message': 'Patient does not exist',
+            'data': None
+        }
+        return response
+
+    result = db.query(ConsultationModel).options(joinedload(ConsultationModel.doctor).joinedload(DoctorModel.speciality), joinedload(
+        ConsultationModel.time_slot)).filter(ConsultationModel.patient_id == patient_id).all()
+
+    response = {
+        'message': 'Patient consultation data fetched',
+        'data': result
     }
     return response

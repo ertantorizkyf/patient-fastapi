@@ -20,7 +20,7 @@ router = APIRouter(
 
 @router.get('/')
 def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
-    result = db.query(ConsultationModel).options(joinedload(ConsultationModel.patient), joinedload(ConsultationModel.doctor), joinedload(ConsultationModel.time_slot)).filter(
+    result = db.query(ConsultationModel).options(joinedload(ConsultationModel.patient), joinedload(ConsultationModel.doctor).joinedload(DoctorModel.speciality), joinedload(ConsultationModel.time_slot)).filter(
         or_(ConsultationModel.diagnosis.like('%' + search + '%'), ConsultationModel.note.like('%' + search + '%')))
     if (with_pagination):
         result = result.offset(skip).limit(limit)
@@ -36,7 +36,7 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
 @router.get('/{consultation_id}')
 def get_detail(consultation_id: int, db: SessionLocal = Depends(get_db)):
     result = db.query(ConsultationModel).options(joinedload(ConsultationModel.patient), joinedload(
-        ConsultationModel.doctor), joinedload(ConsultationModel.time_slot)).get(consultation_id)
+        ConsultationModel.doctor).joinedload(DoctorModel.speciality), joinedload(ConsultationModel.time_slot)).get(consultation_id)
 
     response = {
         'message': 'Consultation detail fetched' if result is not None else 'Consultation detail not found',

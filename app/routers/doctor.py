@@ -4,6 +4,7 @@ from sqlalchemy import exc, and_, or_
 from sqlalchemy.orm import joinedload
 
 from app.database import SessionLocal, get_db
+from app.models.consultation import Consultation as ConsultationModel
 from app.models.doctor import Doctor as DoctorModel
 from app.models.doctor_time_slot import DoctorTimeSlot as DoctorTimeSlotModel
 from app.models.speciality import Speciality as SpecialityModel
@@ -181,6 +182,14 @@ def delete(doctor_id: int, db: SessionLocal = Depends(get_db)):
 # DOCTOR TIME SLOT
 @router.get('/{doctor_id}/time-slots')
 def get_time_slots(doctor_id: int, db: SessionLocal = Depends(get_db)):
+    existing_doctor = db.query(DoctorModel).get(doctor_id)
+    if existing_doctor is None:
+        response = {
+            'message': 'Doctor does not exist',
+            'data': None
+        }
+        return response
+
     result = db.query(DoctorTimeSlotModel).filter(
         DoctorTimeSlotModel.doctor_id == doctor_id).all()
 
@@ -327,5 +336,26 @@ def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_d
     response = {
         'message': 'Doctor time slot status toggled successfully',
         'data': existing_slot
+    }
+    return response
+
+
+# DOCTOR CONSULTATION
+@router.get('/{doctor_id}/consultations')
+def get_consultations(doctor_id: int, db: SessionLocal = Depends(get_db)):
+    existing_doctor = db.query(DoctorModel).get(doctor_id)
+    if existing_doctor is None:
+        response = {
+            'message': 'Doctor does not exist',
+            'data': None
+        }
+        return response
+        
+    result = db.query(ConsultationModel).options(joinedload(ConsultationModel.patient), joinedload(
+        ConsultationModel.time_slot)).filter(ConsultationModel.doctor_id == doctor_id).all()
+
+    response = {
+        'message': 'Doctor consultation data fetched',
+        'data': result
     }
     return response
