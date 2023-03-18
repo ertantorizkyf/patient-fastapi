@@ -155,6 +155,15 @@ def delete(doctor_id: int, db: SessionLocal = Depends(get_db)):
             'data': None
         }
         return response
+    
+    # COUNT CONSULTATION
+    consultation_count = db.query(ConsultationModel).filter(ConsultationModel.doctor_id == doctor_id).count()
+    if consultation_count > 0:
+        response = {
+            'message': 'Cannot delete doctor with consultation data',
+            'data': None
+        }
+        return response
 
     # DELETE DATA
     delete_query = db.query(DoctorModel).filter(
@@ -350,7 +359,7 @@ def get_consultations(doctor_id: int, db: SessionLocal = Depends(get_db)):
             'data': None
         }
         return response
-        
+
     result = db.query(ConsultationModel).options(joinedload(ConsultationModel.patient), joinedload(
         ConsultationModel.time_slot)).filter(ConsultationModel.doctor_id == doctor_id).all()
 
