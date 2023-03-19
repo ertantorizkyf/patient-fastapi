@@ -3,7 +3,7 @@
 
 #### Patient
 
-- Description: these endpoints related to patient related data. It allows accessing, creating, updating, and deleting data regarding patients
+- Description: these endpoints are related to patient data. It allows accessing, creating, updating, and deleting data regarding patients.
 
 - Endpoints:
 	-  `GET`  `{base_url}/patients`
@@ -59,7 +59,29 @@ desc: Updating patient data based on `patient_id`. Phone number will be formatte
   
 #### Speciality
 
-- TBU
+- Description: these endpoints are related to medical speciality data. It allows accessing, creating, updating, and deleting data regarding specialities. Specialities data are needed to insert doctor data as the doctors needed `speciality_id` to be created.
+
+- Endpoints:
+	-  `GET`  `{base_url}/specialities`
+		desc: Getting all available medical specilatity data from the db. It also allows pagination via query parameter. It also enable searching data by keyword via query parameter.
+		available query param:
+		-  `with_pagination`  `True/False`
+		-  `skip`  `int`
+		-  `limit`  `int`
+		-  `search`  `string`
+
+	-  `GET`  `{base_url}/specialities/{speciality_id}`
+		desc: Getting speciality data from the db based on `speciality_id`.
+
+	-  `POST`  `{base_url}/specialities`
+		desc: Create new speciality data and insert it into the db.		sample payload:
+	
+			{
+				"name": "General Practitioner"
+			}
+			
+	-  `DELETE`  `{base_url}/specialities/{speciality_id}`
+		desc: Deleting speciality data based on `speciality_id`. Deletion process will fail if `speciality_id` exists in doctor data.
 
   
 #### Doctor
