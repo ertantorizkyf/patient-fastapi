@@ -5,7 +5,9 @@
 1. Create virtual environment (Windows: `python -m venv venv`)
 2. Activate virtual environment (Windows Command Prompt: `venv\Scripts\activate.bat`)
 3. Install all modules from requirements file (`pip install -r requirements.txt`)
-4. Run `uvicorn app.main:app --reload` to start server on port 8000
+4. Open .env file and setup database configuration. Database used in this app is mariadb
+5. Run `alembic upgrade head` to generate tables into specified database in the previous step
+6. Run `uvicorn app.main:app --reload` to start server on port 8000
 
 ## Current Feature
 
