@@ -21,7 +21,7 @@ router = APIRouter(
 
 
 @router.get('/')
-def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
+async def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
     result = db.query(PatientModel).filter(
         or_(
             PatientModel.name.like('%' + search + '%'),
@@ -47,7 +47,7 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
 
 
 @router.get('/{patient_id}')
-def get_detail(patient_id: int, db: SessionLocal = Depends(get_db)):
+async def get_detail(patient_id: int, db: SessionLocal = Depends(get_db)):
     result = db.query(PatientModel).get(patient_id)
 
     response = {
@@ -58,7 +58,7 @@ def get_detail(patient_id: int, db: SessionLocal = Depends(get_db)):
 
 
 @router.post('/')
-def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
+async def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
     # FORMAT DATA
     patient.sex = patient.sex.upper()
     patient.phone = GeneralHelper.phone_formatter(patient.phone)
@@ -94,7 +94,7 @@ def create(patient: PatientSchema, db: SessionLocal = Depends(get_db)):
 
 
 @router.put('/{patient_id}')
-def update(patient_id: int, patient: PatientSchema, db: SessionLocal = Depends(get_db)):
+async def update(patient_id: int, patient: PatientSchema, db: SessionLocal = Depends(get_db)):
     # FORMAT DATA
     patient.sex = patient.sex.upper()
     patient.phone = GeneralHelper.phone_formatter(patient.phone)
@@ -140,7 +140,7 @@ def update(patient_id: int, patient: PatientSchema, db: SessionLocal = Depends(g
 
 
 @router.delete('/{patient_id}')
-def delete(patient_id: int, db: SessionLocal = Depends(get_db)):
+async def delete(patient_id: int, db: SessionLocal = Depends(get_db)):
     # CHECK IF DATA EXIST
     existing_patient = db.query(PatientModel).get(patient_id)
     if existing_patient is None:
@@ -183,7 +183,7 @@ def delete(patient_id: int, db: SessionLocal = Depends(get_db)):
 
 # PATIENT CONSULTATION
 @router.get('/{patient_id}/consultations')
-def get_consultations(patient_id: int, db: SessionLocal = Depends(get_db)):
+async def get_consultations(patient_id: int, db: SessionLocal = Depends(get_db)):
     existing_patient = db.query(PatientModel).get(patient_id)
     if existing_patient is None:
         response = {

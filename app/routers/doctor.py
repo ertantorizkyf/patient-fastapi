@@ -21,7 +21,7 @@ router = APIRouter(
 
 # DOCTOR
 @router.get('/')
-def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
+async def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
     result = db.query(DoctorModel).options(joinedload(DoctorModel.speciality)).filter(
         DoctorModel.name.like('%' + search + '%'))
     if (with_pagination):
@@ -36,7 +36,7 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
 
 
 @router.get('/{doctor_id}')
-def get_detail(doctor_id: int, db: SessionLocal = Depends(get_db)):
+async def get_detail(doctor_id: int, db: SessionLocal = Depends(get_db)):
     result = db.query(DoctorModel).options(
         joinedload(DoctorModel.speciality)).get(doctor_id)
 
@@ -48,7 +48,7 @@ def get_detail(doctor_id: int, db: SessionLocal = Depends(get_db)):
 
 
 @router.post('/')
-def create(doctor: DoctorSchema, db: SessionLocal = Depends(get_db)):
+async def create(doctor: DoctorSchema, db: SessionLocal = Depends(get_db)):
     # VALIDATE SPECIALITY
     speciality = db.query(SpecialityModel).get(doctor.speciality_id)
     if speciality is None:
@@ -92,7 +92,7 @@ def create(doctor: DoctorSchema, db: SessionLocal = Depends(get_db)):
 
 
 @router.put('/{doctor_id}')
-def update(doctor_id: int, doctor: DoctorSchema, db: SessionLocal = Depends(get_db)):
+async def update(doctor_id: int, doctor: DoctorSchema, db: SessionLocal = Depends(get_db)):
     # VALIDATE SPECIALITY
     speciality = db.query(SpecialityModel).get(doctor.speciality_id)
     if speciality is None:
@@ -146,7 +146,7 @@ def update(doctor_id: int, doctor: DoctorSchema, db: SessionLocal = Depends(get_
 
 
 @router.delete('/{doctor_id}')
-def delete(doctor_id: int, db: SessionLocal = Depends(get_db)):
+async def delete(doctor_id: int, db: SessionLocal = Depends(get_db)):
     # CHECK IF DATA EXIST
     existing_data = db.query(DoctorModel).get(doctor_id)
     if existing_data is None:
@@ -190,7 +190,7 @@ def delete(doctor_id: int, db: SessionLocal = Depends(get_db)):
 
 # DOCTOR TIME SLOT
 @router.get('/{doctor_id}/time-slots')
-def get_time_slots(doctor_id: int, db: SessionLocal = Depends(get_db)):
+async def get_time_slots(doctor_id: int, db: SessionLocal = Depends(get_db)):
     existing_doctor = db.query(DoctorModel).get(doctor_id)
     if existing_doctor is None:
         response = {
@@ -210,7 +210,7 @@ def get_time_slots(doctor_id: int, db: SessionLocal = Depends(get_db)):
 
 
 @router.post('/{doctor_id}/time-slots')
-def insert_time_slot(doctor_id: int, time_slot: DoctorTimeSlotSchema, db: SessionLocal = Depends(get_db)):
+async def insert_time_slot(doctor_id: int, time_slot: DoctorTimeSlotSchema, db: SessionLocal = Depends(get_db)):
     # FORMAT DATA
     time_slot.day = time_slot.day.title()
     time_slot.doctor_id = doctor_id
@@ -278,7 +278,7 @@ def insert_time_slot(doctor_id: int, time_slot: DoctorTimeSlotSchema, db: Sessio
 
 
 @router.put('/{doctor_id}/time-slots/{slot_id}/toggle')
-def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_db)):
+async def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_db)):
     # CHECK IF DOCTOR EXIST
     existing_doctor = db.query(DoctorModel).get(doctor_id)
     if existing_doctor is None:
@@ -351,7 +351,7 @@ def toggle_status(doctor_id: int, slot_id: int, db: SessionLocal = Depends(get_d
 
 # DOCTOR CONSULTATION
 @router.get('/{doctor_id}/consultations')
-def get_consultations(doctor_id: int, db: SessionLocal = Depends(get_db)):
+async def get_consultations(doctor_id: int, db: SessionLocal = Depends(get_db)):
     existing_doctor = db.query(DoctorModel).get(doctor_id)
     if existing_doctor is None:
         response = {

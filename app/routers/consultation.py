@@ -19,7 +19,7 @@ router = APIRouter(
 
 
 @router.get('/')
-def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
+async def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
     result = db.query(ConsultationModel).options(joinedload(ConsultationModel.patient), joinedload(ConsultationModel.doctor).joinedload(DoctorModel.speciality), joinedload(ConsultationModel.time_slot)).filter(
         or_(ConsultationModel.diagnosis.like('%' + search + '%'), ConsultationModel.note.like('%' + search + '%')))
     if (with_pagination):
@@ -34,7 +34,7 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
 
 
 @router.get('/{consultation_id}')
-def get_detail(consultation_id: int, db: SessionLocal = Depends(get_db)):
+async def get_detail(consultation_id: int, db: SessionLocal = Depends(get_db)):
     result = db.query(ConsultationModel).options(joinedload(ConsultationModel.patient), joinedload(
         ConsultationModel.doctor).joinedload(DoctorModel.speciality), joinedload(ConsultationModel.time_slot)).get(consultation_id)
 
@@ -46,7 +46,7 @@ def get_detail(consultation_id: int, db: SessionLocal = Depends(get_db)):
 
 
 @router.post('/')
-def create(consultation: ConsultationSchema, db: SessionLocal = Depends(get_db)):
+async def create(consultation: ConsultationSchema, db: SessionLocal = Depends(get_db)):
     # FORMAT PAYLOAD
     consultation.diagnosis = None
     consultation.note = None
@@ -130,7 +130,7 @@ def create(consultation: ConsultationSchema, db: SessionLocal = Depends(get_db))
 
 
 @router.put('/{consultation_id}/write-diagnosis')
-def write_diagnosis(consultation_id: int, consultation: ConsultationSchema, db: SessionLocal = Depends(get_db)):
+async def write_diagnosis(consultation_id: int, consultation: ConsultationSchema, db: SessionLocal = Depends(get_db)):
     # CHECK IF DATA EXIST
     existing_consultation = db.query(ConsultationModel).get(consultation_id)
     if existing_consultation is None:
@@ -179,7 +179,7 @@ def write_diagnosis(consultation_id: int, consultation: ConsultationSchema, db: 
 
 
 @router.delete('/{consultation_id}')
-def delete(consultation_id: int, db: SessionLocal = Depends(get_db)):
+async def delete(consultation_id: int, db: SessionLocal = Depends(get_db)):
     # CHECK IF DATA EXIST
     existing_consultation = db.query(ConsultationModel).get(consultation_id)
     if existing_consultation is None:

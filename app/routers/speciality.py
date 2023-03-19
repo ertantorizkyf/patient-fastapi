@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.get('/')
-def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
+async def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100, with_pagination: bool = False, search: str = ''):
     result = db.query(SpecialityModel).filter(
         SpecialityModel.name.like('%' + search + '%'))
     if (with_pagination):
@@ -29,7 +29,7 @@ def get_all(db: SessionLocal = Depends(get_db), skip: int = 0, limit: int = 100,
 
 
 @router.get('/{speciality_id}')
-def get_detail(speciality_id: int, db: SessionLocal = Depends(get_db)):
+async def get_detail(speciality_id: int, db: SessionLocal = Depends(get_db)):
     result = db.query(SpecialityModel).get(speciality_id)
 
     response = {
@@ -40,7 +40,7 @@ def get_detail(speciality_id: int, db: SessionLocal = Depends(get_db)):
 
 
 @router.post('/')
-def create(speciality: SpecialitySchema, db: SessionLocal = Depends(get_db)):
+async def create(speciality: SpecialitySchema, db: SessionLocal = Depends(get_db)):
     new_speciality = SpecialityModel(**speciality.dict())
     db.add(new_speciality)
     try:
@@ -64,7 +64,7 @@ def create(speciality: SpecialitySchema, db: SessionLocal = Depends(get_db)):
 
 
 @router.delete('/{speciality_id}')
-def delete(speciality_id: int, db: SessionLocal = Depends(get_db)):
+async def delete(speciality_id: int, db: SessionLocal = Depends(get_db)):
     # CHECK IF DATA EXIST
     existing_data = db.query(SpecialityModel).get(speciality_id)
     if existing_data is None:
